@@ -16,6 +16,14 @@ if (XG_TESTS)
 	target_link_libraries(xgtest xg)
 endif()
 
+set_target_properties(xg
+PROPERTIES PUBLIC_HEADER Guid.hpp
+)
+
+install(TARGETS xg
+    ARCHIVE DESTINATION ${CMAKE_SYSTEM_NAME}/lib
+    PUBLIC_HEADER DESTINATION ${CMAKE_SYSTEM_NAME}/include/crossguid
+)
 
 if(WIN32)
 	add_definitions(-DGUID_WINDOWS)

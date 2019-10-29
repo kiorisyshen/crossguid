@@ -8,12 +8,15 @@ option(XG_TESTS "Build test runner" ON)
 
 include_directories(.)
 set(CMAKE_CXX_STANDARD 11)
+include(PlatformDependencies)
 
 add_library(xg Guid.cpp)
+__add_xg_platform_dependencies(xg)
 
 if (XG_TESTS)
 	add_executable(xgtest test/TestMain.cpp test/Test.cpp)
 	target_link_libraries(xgtest xg)
+	__add_xg_platform_dependencies(xgtest)
 endif()
 
 set_target_properties(xg
@@ -25,23 +28,10 @@ install(TARGETS xg
     PUBLIC_HEADER DESTINATION ${CMAKE_SYSTEM_NAME}/include/crossguid
 )
 
-if(WIN32)
-	add_definitions(-DGUID_WINDOWS)
-elseif(APPLE)
-	find_library(CFLIB CoreFoundation)
-	target_link_libraries(xg ${CFLIB})
-	add_definitions(-DGUID_CFUUID)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
-elseif(ANDROID)
-	target_compile_definitions(xg PRIVATE GUID_ANDROID)
-else()
-	find_package(Libuuid REQUIRED)
-	if (NOT LIBUUID_FOUND)
-		message(FATAL_ERROR
-			"You might need to run 'sudo apt-get install uuid-dev' or similar")
-	endif()
-	include_directories(${LIBUUID_INCLUDE_DIR})
-	target_link_libraries(xg ${LIBUUID_LIBRARY})
-	add_definitions(-DGUID_LIBUUID)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
-endif()
+if(MSVC)
+    install(FILES ${PROJECT_BINARY_DIR}/Debug/xg.pdb
+        DESTINATION ${CMAKE_SYSTEM_NAME}/lib
+        CONFIGURATIONS Debug
+        )
+endif(MSVC)
+

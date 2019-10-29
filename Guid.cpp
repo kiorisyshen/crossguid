@@ -392,6 +392,14 @@ Guid newGuid()
 }
 #endif
 
+#ifdef __EMSCRIPTEN__
+Guid newGuid()
+{
+    Guid newId;
+    // not implemented
+	return newId;
+}
+#endif
 
 END_XG_NAMESPACE
 
